@@ -44,4 +44,4 @@ npm run test
 ### Запустить линтер
 ```bash
 npm run lint
-```# edutrack
+```
