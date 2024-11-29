@@ -20,8 +20,18 @@ export interface LessonWithRelations extends Model {
   date: Date;
   title: string;
   status: number;
-  students?: (Student & { lesson_students: LessonStudent })[];
-  teachers?: Teacher[];
+  studentsCount: string;
+  Students?: {
+    id: number;
+    name: string;
+    LessonStudent: {
+      visit: boolean;
+    };
+  }[];
+  Teachers?: {
+    id: number;
+    name: string;
+  }[];
 }
 
 export interface FormattedLesson {
@@ -29,11 +39,11 @@ export interface FormattedLesson {
   date: Date;
   title: string;
   status: number;
+  studentsCount: number;
   visitCount: number;
   students: Student[];
   teachers: Teacher[];
 }
-
 export interface LessonsResponse {
   lessons: FormattedLesson[];
   total: number;

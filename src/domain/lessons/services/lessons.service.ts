@@ -1,10 +1,16 @@
-import { FormattedLesson, LessonFilters, LessonsResponse, LessonWithRelations, QueryParams } from '../../../common/interfaces/interfaces';
+import {
+  FormattedLesson,
+  LessonFilters,
+  LessonsResponse,
+  LessonWithRelations,
+  QueryParams,
+  Student,
+  Teacher
+} from '../../../common/interfaces/interfaces';
 import { LessonsRepository } from '../../../common/repositories/lessons.repository';
 
-type NewType = LessonsRepository;
-
 export class LessonService {
-  private repository: NewType;
+  private repository: LessonsRepository;
 
   constructor() {
     this.repository = new LessonsRepository();
@@ -60,22 +66,28 @@ export class LessonService {
   }
 
   private formatLessons(lessons: LessonWithRelations[]): FormattedLesson[] {
-    return lessons.map(lesson => ({
-      id: lesson.id,
-      date: lesson.date,
-      title: lesson.title,
-      status: lesson.status,
-      visitCount: lesson.students?.filter(student => student.visit).length || 0,
-      students: lesson.students?.map(student => ({
+    return lessons.map(lesson => {
+      const students: Student[] = lesson.Students?.map(student => ({
         id: student.id,
         name: student.name,
-        visit: student.visit
-      })) || [],
-      teachers: lesson.teachers?.map(teacher => ({
+        visit: student.LessonStudent.visit
+      })) || [];
+
+      const teachers: Teacher[] = lesson.Teachers?.map(teacher => ({
         id: teacher.id,
         name: teacher.name
-      })) || []
-    }));
+      })) || [];
+
+      return {
+        id: lesson.id,
+        date: lesson.date,
+        title: lesson.title,
+        status: lesson.status,
+        studentsCount: students.length,
+        visitCount: students.filter(student => student.visit).length,
+        students,
+        teachers
+      };
+    });
   }
 }
-

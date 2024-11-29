@@ -26,4 +26,14 @@ Student.belongsToMany(Lesson, {
   otherKey: 'lesson_id'
 });
 
+LessonStudent.belongsTo(Lesson, { foreignKey: 'lesson_id' });
+LessonStudent.belongsTo(Student, { foreignKey: 'student_id' });
+Lesson.hasMany(LessonStudent, { foreignKey: 'lesson_id' });
+Student.hasMany(LessonStudent, { foreignKey: 'student_id' });
+
+LessonTeacher.belongsTo(Lesson, { foreignKey: 'lesson_id' });
+LessonTeacher.belongsTo(Teacher, { foreignKey: 'teacher_id' });
+Lesson.hasMany(LessonTeacher, { foreignKey: 'lesson_id' });
+Teacher.hasMany(LessonTeacher, { foreignKey: 'teacher_id' });
+
 export { Lesson, Teacher, Student, LessonStudent, LessonTeacher };

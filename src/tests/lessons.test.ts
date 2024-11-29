@@ -22,8 +22,12 @@ describe('Lessons API', () => {
         date: new Date('2023-01-01'),
         title: 'Math 101',
         status: 1,
-        students: [{ id: 1, name: 'John Doe', visit: true }],
-        teachers: [{ id: 1, name: 'Jane Smith' }]
+        studentsCount: '2',
+        Students: [
+          { id: 1, name: 'John Doe', LessonStudent: { visit: true } },
+          { id: 2, name: 'Jane Doe', LessonStudent: { visit: false } }
+        ],
+        Teachers: [{ id: 1, name: 'Jane Smith' }]
       }
     ];
 
@@ -42,8 +46,12 @@ describe('Lessons API', () => {
           date: '2023-01-01T00:00:00.000Z',
           title: 'Math 101',
           status: 1,
+          studentsCount: 2,
           visitCount: 1,
-          students: [{ id: 1, name: 'John Doe', visit: true }],
+          students: [
+            { id: 1, name: 'John Doe', visit: true },
+            { id: 2, name: 'Jane Doe', visit: false }
+          ],
           teachers: [{ id: 1, name: 'Jane Smith' }]
         }
       ],
@@ -63,8 +71,9 @@ describe('Lessons API', () => {
         date: new Date('2023-02-15'),
         title: 'Physics 101',
         status: 0,
-        students: [],
-        teachers: []
+        studentsCount: '0',
+        Students: [],
+        Teachers: []
       }
     ];
 
@@ -79,6 +88,7 @@ describe('Lessons API', () => {
 
     expect(response.status).toBe(200);
     expect(response.body.lessons[0].date).toBe('2023-02-15T00:00:00.000Z');
+    expect(response.body.lessons[0].studentsCount).toBe(0);
     expect(LessonsRepository.prototype.findLessons).toHaveBeenCalledWith(
       expect.objectContaining({ date: '2023-02-01,2023-02-28' }),
       1,
@@ -191,4 +201,3 @@ describe('Lessons API', () => {
     });
   });
 });
-

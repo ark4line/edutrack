@@ -21,17 +21,14 @@ export class LessonsRepository {
       limit: lessonsPerPage,
       where: filterResult.where as WhereOptions<Lesson>,
       include: filterResult.include as Includeable[],
-      attributes: filterResult.attributes,
-      group: filterResult.group,
-      having: filterResult.having as WhereOptions<Lesson>
+      attributes: filterResult.attributes
     };
 
     const lessons = await Lesson.findAndCountAll(queryOptions);
 
     return {
       rows: lessons.rows as LessonWithRelations[],
-      count: lessons.count
+      count: lessons.count as number
     };
   }
 }
-

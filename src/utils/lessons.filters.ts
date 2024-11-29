@@ -1,4 +1,4 @@
-import { Op, WhereOptions, Includeable, FindAttributeOptions, Sequelize, literal } from 'sequelize';
+import { Op, WhereOptions, Includeable, FindAttributeOptions, Sequelize } from 'sequelize';
 import { Student, Teacher } from '../common/models';
 import { LessonFilters } from '../common/interfaces/interfaces';
 
@@ -6,8 +6,6 @@ interface FilterResult {
   where: WhereOptions;
   include: Includeable[];
   attributes?: FindAttributeOptions;
-  group?: string[];
-  having?: unknown;
 }
 
 export function createLessonFilters(filters: LessonFilters): FilterResult {
@@ -44,19 +42,55 @@ export function createLessonFilters(filters: LessonFilters): FilterResult {
     through: { attributes: ['visit'] }
   });
 
-  const result: FilterResult = { where, include };
+  const result: FilterResult = { 
+    where, 
+    include,
+    attributes: {
+      include: [
+        [
+          Sequelize.literal(`(
+            SELECT COUNT(DISTINCT "lesson_students"."student_id")
+            FROM "lesson_students"
+            WHERE "lesson_students"."lesson_id" = "Lesson"."id"
+          )`),
+          'studentsCount'
+        ]
+      ]
+    }
+  };
 
   if (filters.studentsCount) {
     const [minCount, maxCount] = filters.studentsCount.split(',').map(Number);
-    result.attributes = {
-      include: [[Sequelize.fn('COUNT', Sequelize.col('Students.id')), 'studentCount']]
-    };
-    result.group = ['Lesson.id'];
-    result.having = maxCount
-      ? literal(`COUNT(DISTINCT "Students"."id") BETWEEN ${minCount} AND ${maxCount}`)
-      : literal(`COUNT(DISTINCT "Students"."id") = ${minCount}`);
+    if (maxCount) {
+      result.where = {
+        ...result.where,
+        [Op.and]: [
+          Sequelize.where(
+            Sequelize.literal(`(
+              SELECT COUNT(DISTINCT "lesson_students"."student_id")
+              FROM "lesson_students"
+              WHERE "lesson_students"."lesson_id" = "Lesson"."id"
+            )`),
+            { [Op.between]: [minCount, maxCount] }
+          )
+        ]
+      };
+    } else {
+      result.where = {
+        ...result.where,
+        [Op.and]: [
+          Sequelize.where(
+            Sequelize.literal(`(
+              SELECT COUNT(DISTINCT "lesson_students"."student_id")
+              FROM "lesson_students"
+              WHERE "lesson_students"."lesson_id" = "Lesson"."id"
+            )`),
+            minCount
+          )
+        ]
+      };
+    }
   }
 
   return result;
 }
-
